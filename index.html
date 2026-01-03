@@ -2,85 +2,135 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ASCII Keyboard Checker</title>
+    <title>AsciiTrack - Keyboard Checker</title>
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px; }
-        h1 { text-align: center; color: #4ec9b0; }
-        .container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 1000px; margin: 0 auto; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; padding: 20px; text-align: center; }
+        h1 { color: #38bdf8; margin-bottom: 5px; }
+        .stats { color: #94a3b8; margin-bottom: 20px; font-size: 0.9rem; }
+        
+        .container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 1100px; margin: 0 auto; }
+        
         .key-box {
-            border: 1px solid #444;
+            border: 1px solid #1e293b;
             padding: 10px;
-            width: 60px;
-            text-align: center;
-            border-radius: 4px;
-            background: #252526;
-            transition: all 0.1s;
+            width: 65px;
+            border-radius: 8px;
+            /* 最初は濃い背景色 */
+            background: #1e293b;
+            color: #f8fafc;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
+
+        /* 打った後のスタイル（薄くする） */
+        .key-box.pressed {
+            background: rgba(30, 41, 59, 0.2);
+            color: #475569;
+            border-color: #334155;
+        }
+
+        /* 叩いた瞬間のフラッシュ効果 */
         .key-box.active {
-            background: #4ec9b0;
-            color: #1e1e1e;
-            transform: scale(1.1);
+            background: #38bdf8 !important;
+            color: #0f172a !important;
+            transform: scale(0.95);
+            box-shadow: 0 0 15px #38bdf8;
         }
-        .code { font-size: 0.7rem; color: #888; display: block; }
-        .char { font-size: 1.2rem; font-weight: bold; display: block; margin: 4px 0; }
-        .count { font-size: 0.8rem; background: #333; border-radius: 10px; padding: 2px 6px; }
-        .instructions { text-align: center; margin-bottom: 20px; color: #9cdcfe; }
+
+        .code { font-size: 0.65rem; color: #64748b; display: block; }
+        .char { font-size: 1.1rem; font-weight: bold; display: block; margin: 4px 0; }
+        .count { font-size: 0.75rem; opacity: 0.6; }
+
+        /* 特殊キー用のスタイル */
+        .special { border-color: #334155; width: 90px; }
     </style>
 </head>
 <body>
 
-    <h1>ASCII Key Counter</h1>
-    <p class="instructions">キーボードを叩いて、ASCII文字（32〜126）をチェックしよう！</p>
+    <h1>AsciiTrack</h1>
+    <div class="stats" id="status-text">すべてのキーを打ち抜こう！</div>
     
     <div class="container" id="key-container">
         </div>
 
     <script>
         const container = document.getElementById('key-container');
-        const keyMap = {}; // ASCIIコードをキーにしたDOM保持用
+        const keyMap = {};
 
-        // 1. ASCII 32 (Space) から 126 (~) までの表示可能な文字を生成
-        for (let i = 32; i <= 126; i++) {
-            const char = i === 32 ? 'SP' : String.fromCharCode(i); // 32はスペースなのでSPと表記
-            
+        // 1. 特殊キーの定義
+        const specialKeys = [
+            { code: 8, name: 'BS', label: 'Backspace' },
+            { code: 13, name: 'Enter', label: 'Enter' },
+            { code: 46, name: 'Del', label: 'Delete' }
+        ];
+
+        // 共通の生成関数
+        function createKeyElement(id, charName, label) {
             const div = document.createElement('div');
             div.className = 'key-box';
-            div.id = `key-${i}`;
+            if (isNaN(id)) div.classList.add('special');
+            div.id = `key-${id}`;
             div.innerHTML = `
-                <span class="code">#${i}</span>
-                <span class="char">${char}</span>
-                <span class="count" id="count-${i}">0</span>
+                <span class="code">${label}</span>
+                <span class="char">${charName}</span>
+                <span class="count" id="count-${id}">0</span>
             `;
             container.appendChild(div);
             
-            keyMap[i] = {
-                count: 0,
-                element: div,
-                countElement: document.getElementById(`count-${i}`)
-            };
+            keyMap[id] = { count: 0, element: div, countElement: document.getElementById(`count-${id}`) };
         }
 
-        // 2. キー入力イベントの監視
-        window.addEventListener('keydown', (event) => {
-            // event.key から文字を取得し、そのASCIIコードを確認
-            const charCode = event.key.length === 1 ? event.key.charCodeAt(0) : null;
+        // 特殊キーの作成
+        specialKeys.forEach(k => createKeyElement(k.name, k.name, 'CTRL'));
 
-            // 特殊対応: Spaceキーなどは event.key が " " になる
-            if (charCode >= 32 && charCode <= 126) {
-                const data = keyMap[charCode];
+        // ASCII 32-126 の作成
+        for (let i = 32; i <= 126; i++) {
+            const char = i === 32 ? 'Space' : String.fromCharCode(i);
+            createKeyElement(i, char, `ID: ${i}`);
+        }
+
+        let totalPressed = 0;
+        const totalTargets = Object.keys(keyMap).length;
+
+        window.addEventListener('keydown', (event) => {
+            let targetId = null;
+
+            // 判定ロジック
+            if (event.key === 'Backspace') targetId = 'BS';
+            else if (event.key === 'Enter') targetId = 'Enter';
+            else if (event.key === 'Delete') targetId = 'Del';
+            else if (event.key.length === 1) {
+                const code = event.key.charCodeAt(0);
+                if (code >= 32 && code <= 126) targetId = code;
+            }
+
+            if (targetId && keyMap[targetId]) {
+                const data = keyMap[targetId];
                 
-                // カウントアップ
+                // 初回入力時の処理
+                if (data.count === 0) {
+                    totalPressed++;
+                    data.element.classList.add('pressed');
+                }
+
                 data.count++;
                 data.countElement.innerText = data.count;
 
-                // アニメーション用のクラス付与
+                // 叩いた瞬間のアニメーション
                 data.element.classList.add('active');
-                setTimeout(() => {
-                    data.element.classList.remove('active');
-                }, 150);
+                setTimeout(() => data.element.classList.remove('active'), 100);
 
-                // ブラウザのショートカット（Ctrl+Sなど）を防止したい場合はここ
-                // event.preventDefault();
+                // ステータス更新
+                document.getElementById('status-text').innerText = 
+                    `Progress: ${totalPressed} / ${totalTargets} keys tracked`;
+
+                if (totalPressed === totalTargets) {
+                    document.getElementById('status-text').innerText = "🎉 All Keys Tracked! Perfect!";
+                    document.getElementById('status-text').style.color = "#fbbf24";
+                }
+
+                // BSなどのデフォルト動作（前のページに戻る等）を防止
+                if (['Backspace', 'Delete'].includes(event.key)) event.preventDefault();
             }
         });
     </script>
