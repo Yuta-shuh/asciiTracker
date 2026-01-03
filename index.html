@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ASCII Keyboard Checker</title>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px; }
+        h1 { text-align: center; color: #4ec9b0; }
+        .container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 1000px; margin: 0 auto; }
+        .key-box {
+            border: 1px solid #444;
+            padding: 10px;
+            width: 60px;
+            text-align: center;
+            border-radius: 4px;
+            background: #252526;
+            transition: all 0.1s;
+        }
+        .key-box.active {
+            background: #4ec9b0;
+            color: #1e1e1e;
+            transform: scale(1.1);
+        }
+        .code { font-size: 0.7rem; color: #888; display: block; }
+        .char { font-size: 1.2rem; font-weight: bold; display: block; margin: 4px 0; }
+        .count { font-size: 0.8rem; background: #333; border-radius: 10px; padding: 2px 6px; }
+        .instructions { text-align: center; margin-bottom: 20px; color: #9cdcfe; }
+    </style>
+</head>
+<body>
+
+    <h1>ASCII Key Counter</h1>
+    <p class="instructions">キーボードを叩いて、ASCII文字（32〜126）をチェックしよう！</p>
+    
+    <div class="container" id="key-container">
+        </div>
+
+    <script>
+        const container = document.getElementById('key-container');
+        const keyMap = {}; // ASCIIコードをキーにしたDOM保持用
+
+        // 1. ASCII 32 (Space) から 126 (~) までの表示可能な文字を生成
+        for (let i = 32; i <= 126; i++) {
+            const char = i === 32 ? 'SP' : String.fromCharCode(i); // 32はスペースなのでSPと表記
+            
+            const div = document.createElement('div');
+            div.className = 'key-box';
+            div.id = `key-${i}`;
+            div.innerHTML = `
+                <span class="code">#${i}</span>
+                <span class="char">${char}</span>
+                <span class="count" id="count-${i}">0</span>
+            `;
+            container.appendChild(div);
+            
+            keyMap[i] = {
+                count: 0,
+                element: div,
+                countElement: document.getElementById(`count-${i}`)
+            };
+        }
+
+        // 2. キー入力イベントの監視
+        window.addEventListener('keydown', (event) => {
+            // event.key から文字を取得し、そのASCIIコードを確認
+            const charCode = event.key.length === 1 ? event.key.charCodeAt(0) : null;
+
+            // 特殊対応: Spaceキーなどは event.key が " " になる
+            if (charCode >= 32 && charCode <= 126) {
+                const data = keyMap[charCode];
+                
+                // カウントアップ
+                data.count++;
+                data.countElement.innerText = data.count;
+
+                // アニメーション用のクラス付与
+                data.element.classList.add('active');
+                setTimeout(() => {
+                    data.element.classList.remove('active');
+                }, 150);
+
+                // ブラウザのショートカット（Ctrl+Sなど）を防止したい場合はここ
+                // event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
