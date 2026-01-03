@@ -83,8 +83,18 @@
         // 4. 特殊キーの定義（event.key の値と一致させる）
         const specials = [
             { id: 'Backspace', label: 'BS', hex: '0x08' },
-            { id: 'Enter', label: 'ENTER', hex: '0x0D' },
-            { id: 'Delete', label: 'DEL', hex: '0x7F' }
+            { id: 'Tab',       label: 'TAB', hex: '0x09' },
+            { id: 'Enter',     label: 'ENT', hex: '0x0D' },
+            { id: 'Escape',    label: 'ESC', hex: '0x1B' },
+            { id: 'Delete',    label: 'DEL', hex: '0x7F' },
+            { id: 'Shift',     label: 'SHIFT', hex: 'MOD' },
+            { id: 'Control',   label: 'CTRL', hex: 'MOD' },
+            { id: 'Alt',       label: 'ALT', hex: 'MOD' },
+            { id: 'Meta',      label: 'META', hex: 'OS' },
+            { id: 'ArrowUp',    label: '↑', hex: 'CUR' },
+            { id: 'ArrowDown',  label: '↓', hex: 'CUR' },
+            { id: 'ArrowLeft',  label: '←', hex: 'CUR' },
+            { id: 'ArrowRight', label: '→', hex: 'CUR' }
         ];
 
         specials.forEach(s => {
