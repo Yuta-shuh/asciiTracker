@@ -2,134 +2,132 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>AsciiTrack - Keyboard Checker</title>
+    <title>AsciiTrack - Hex Matrix</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; padding: 20px; text-align: center; }
-        h1 { color: #38bdf8; margin-bottom: 5px; }
-        .stats { color: #94a3b8; margin-bottom: 20px; font-size: 0.9rem; }
+        body { font-family: 'Fira Code', 'Courier New', monospace; background: #0b0f14; color: #a1a1aa; padding: 20px; margin: 0; }
+        h1 { color: #38bdf8; text-align: center; font-size: 1.5rem; letter-spacing: 2px; }
+        .stats { text-align: center; margin-bottom: 20px; font-family: sans-serif; font-size: 0.85rem; }
         
-        .container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 1100px; margin: 0 auto; }
+        .matrix-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 10px; }
+        .matrix { display: grid; grid-template-columns: 50px repeat(16, 45px); gap: 4px; background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d; }
+
+        .cell { width: 45px; height: 55px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.1s; font-size: 0.9rem; }
+        .label { color: #38bdf8; font-weight: bold; font-size: 0.75rem; }
+
+        /* 未入力：濃い色 */
+        .key-box { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
         
-        .key-box {
-            border: 1px solid #1e293b;
-            padding: 10px;
-            width: 65px;
-            border-radius: 8px;
-            /* 最初は濃い背景色 */
-            background: #1e293b;
-            color: #f8fafc;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
+        /* 入力済み：薄く、文字を暗く */
+        .key-box.pressed { background: rgba(33, 38, 45, 0.2); color: #484f58; border-color: #21262d; }
 
-        /* 打った後のスタイル（薄くする） */
-        .key-box.pressed {
-            background: rgba(30, 41, 59, 0.2);
-            color: #475569;
-            border-color: #334155;
-        }
+        /* 打った瞬間のフラッシュ */
+        .key-box.active { background: #38bdf8 !important; color: #0b0f14 !important; transform: scale(1.1); z-index: 10; box-shadow: 0 0 20px #38bdf8; }
 
-        /* 叩いた瞬間のフラッシュ効果 */
-        .key-box.active {
-            background: #38bdf8 !important;
-            color: #0f172a !important;
-            transform: scale(0.95);
-            box-shadow: 0 0 15px #38bdf8;
-        }
+        .hex-id { font-size: 0.6rem; opacity: 0.5; margin-bottom: 4px; }
+        .char { font-size: 0.9rem; font-weight: bold; }
 
-        .code { font-size: 0.65rem; color: #64748b; display: block; }
-        .char { font-size: 1.1rem; font-weight: bold; display: block; margin: 4px 0; }
-        .count { font-size: 0.75rem; opacity: 0.6; }
-
-        /* 特殊キー用のスタイル */
-        .special { border-color: #334155; width: 90px; }
+        /* 特殊キーエリア */
+        .special-container { display: flex; justify-content: center; gap: 10px; width: 100%; }
+        .special-key { width: 110px; height: 60px; cursor: default; }
     </style>
 </head>
 <body>
 
-    <h1>AsciiTrack</h1>
-    <div class="stats" id="status-text">すべてのキーを打ち抜こう！</div>
+    <h1>ASCIITRACK_HEX_MATRIX</h1>
+    <div class="stats" id="status-text">Detecting keystrokes...</div>
     
-    <div class="container" id="key-container">
-        </div>
+    <div class="matrix-wrapper">
+        <div class="matrix" id="matrix"></div>
+
+        <div class="special-container" id="special-container"></div>
+    </div>
 
     <script>
-        const container = document.getElementById('key-container');
-        const keyMap = {};
+        const matrix = document.getElementById('matrix');
+        const specCon = document.getElementById('special-container');
+        const keyMap = {}; 
 
-        // 1. 特殊キーの定義
-        const specialKeys = [
-            { code: 8, name: 'BS', label: 'Backspace' },
-            { code: 13, name: 'Enter', label: 'Enter' },
-            { code: 46, name: 'Del', label: 'Delete' }
+        // 1. ラベル作成用
+        const createLabel = (text) => {
+            const div = document.createElement('div');
+            div.className = 'cell label';
+            div.innerText = text;
+            return div;
+        };
+
+        // 2. マトリックスヘッダー
+        matrix.appendChild(createLabel('HEX'));
+        for (let i = 0; i < 16; i++) matrix.appendChild(createLabel(i.toString(16).toUpperCase()));
+
+        // 3. ASCIIマトリックス生成
+        for (let row = 0x2; row <= 0x7; row++) {
+            matrix.appendChild(createLabel(row.toString(16).toUpperCase() + '_'));
+            for (let col = 0; col < 16; col++) {
+                const code = (row << 4) | col;
+                if (code > 126) {
+                    const empty = document.createElement('div');
+                    empty.className = 'cell';
+                    matrix.appendChild(empty);
+                    continue;
+                }
+                const char = code === 32 ? 'SP' : String.fromCharCode(code);
+                const div = document.createElement('div');
+                div.className = 'cell key-box';
+                div.id = `key-${code}`;
+                div.innerHTML = `<span class="hex-id">0x${code.toString(16).toUpperCase()}</span><span class="char">${char}</span>`;
+                matrix.appendChild(div);
+                keyMap[code] = { count: 0, element: div };
+            }
+        }
+
+        // 4. 特殊キーの定義（event.key の値と一致させる）
+        const specials = [
+            { id: 'Backspace', label: 'BS', hex: '0x08' },
+            { id: 'Enter', label: 'ENTER', hex: '0x0D' },
+            { id: 'Delete', label: 'DEL', hex: '0x7F' }
         ];
 
-        // 共通の生成関数
-        function createKeyElement(id, charName, label) {
+        specials.forEach(s => {
             const div = document.createElement('div');
-            div.className = 'key-box';
-            if (isNaN(id)) div.classList.add('special');
-            div.id = `key-${id}`;
-            div.innerHTML = `
-                <span class="code">${label}</span>
-                <span class="char">${charName}</span>
-                <span class="count" id="count-${id}">0</span>
-            `;
-            container.appendChild(div);
-            
-            keyMap[id] = { count: 0, element: div, countElement: document.getElementById(`count-${id}`) };
-        }
+            div.className = 'cell key-box special-key';
+            div.id = `key-${s.id}`;
+            div.innerHTML = `<span class="hex-id">${s.hex}</span><span class="char">${s.label}</span>`;
+            specCon.appendChild(div);
+            keyMap[s.id] = { count: 0, element: div };
+        });
 
-        // 特殊キーの作成
-        specialKeys.forEach(k => createKeyElement(k.name, k.name, 'CTRL'));
-
-        // ASCII 32-126 の作成
-        for (let i = 32; i <= 126; i++) {
-            const char = i === 32 ? 'Space' : String.fromCharCode(i);
-            createKeyElement(i, char, `ID: ${i}`);
-        }
-
+        // 5. 入力イベント
         let totalPressed = 0;
         const totalTargets = Object.keys(keyMap).length;
 
         window.addEventListener('keydown', (event) => {
-            let targetId = null;
+            let targetKey = null;
 
-            // 判定ロジック
-            if (event.key === 'Backspace') targetId = 'BS';
-            else if (event.key === 'Enter') targetId = 'Enter';
-            else if (event.key === 'Delete') targetId = 'Del';
-            else if (event.key.length === 1) {
+            // 特殊キーか、通常の1文字キーか判定
+            if (keyMap[event.key]) {
+                targetKey = event.key; // Backspace, Enter, Delete
+            } else if (event.key.length === 1) {
                 const code = event.key.charCodeAt(0);
-                if (code >= 32 && code <= 126) targetId = code;
+                if (keyMap[code]) targetKey = code;
             }
 
-            if (targetId && keyMap[targetId]) {
-                const data = keyMap[targetId];
+            if (targetKey !== null) {
+                const data = keyMap[targetKey];
                 
-                // 初回入力時の処理
                 if (data.count === 0) {
                     totalPressed++;
                     data.element.classList.add('pressed');
                 }
-
                 data.count++;
-                data.countElement.innerText = data.count;
-
-                // 叩いた瞬間のアニメーション
+                
+                // アニメーション
                 data.element.classList.add('active');
                 setTimeout(() => data.element.classList.remove('active'), 100);
 
                 // ステータス更新
-                document.getElementById('status-text').innerText = 
-                    `Progress: ${totalPressed} / ${totalTargets} keys tracked`;
+                document.getElementById('status-text').innerText = `TRACKED: ${totalPressed} / ${totalTargets} | LAST_KEY: ${event.key}`;
 
-                if (totalPressed === totalTargets) {
-                    document.getElementById('status-text').innerText = "🎉 All Keys Tracked! Perfect!";
-                    document.getElementById('status-text').style.color = "#fbbf24";
-                }
-
-                // BSなどのデフォルト動作（前のページに戻る等）を防止
+                // Backspaceなどでページが戻るのを防ぐ
                 if (['Backspace', 'Delete'].includes(event.key)) event.preventDefault();
             }
         });
