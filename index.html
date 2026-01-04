@@ -6,227 +6,7 @@
     <title>AsciiTracker</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⌨️</text></svg>">
-    <style>
-        body {
-            font-family: 'Fira Code', 'Courier New', monospace;
-            background: #0b0f14;
-            color: #a1a1aa;
-            padding: 20px;
-            margin: 0;
-        }
-
-        h1 {
-            color: #38bdf8;
-            text-align: center;
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-        }
-
-        .stats {
-            text-align: center;
-            margin-bottom: 20px;
-            font-family: sans-serif;
-            font-size: 0.85rem;
-        }
-
-        .matrix-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            padding: 10px;
-        }
-
-        .matrix {
-            display: grid;
-            grid-template-columns: 50px repeat(16, 45px);
-            gap: 4px;
-            background: #161b22;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #30363d;
-        }
-
-        .cell {
-            width: 45px;
-            height: 55px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            transition: all 0.1s;
-            font-size: 0.9rem;
-        }
-
-        .label {
-            color: #38bdf8;
-            font-weight: bold;
-            font-size: 0.75rem;
-        }
-
-        /* 未入力：濃い色 */
-        .key-box {
-            background: #21262d;
-            color: #c9d1d9;
-            border: 1px solid #30363d;
-        }
-
-        /* 入力済み：薄く、文字を暗く */
-        .key-box.pressed {
-            background: rgba(33, 38, 45, 0.2);
-            color: #484f58;
-            border-color: #21262d;
-        }
-
-        /* 打った瞬間のフラッシュ */
-        .key-box.active {
-            background: #38bdf8 !important;
-            color: #0b0f14 !important;
-            transform: scale(1.1);
-            z-index: 10;
-            box-shadow: 0 0 20px #38bdf8;
-        }
-
-        .hex-id {
-            font-size: 0.6rem;
-            opacity: 0.5;
-            margin-bottom: 4px;
-        }
-
-        .char {
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        /* 特殊キーエリア */
-        .keyboard-fragment {
-            display: grid;
-            grid-template-areas:
-                "esc . . . . . . . bs"
-                "tab . . . . . . . ent"
-                "shft . . . . . . up ."
-                "ctrl meta alt . . . left down right"
-                ". . . . . . . . . ";
-            grid-template-columns: repeat(9, 70px);
-            grid-template-rows: repeat(5, 55px);
-            gap: 24px;
-            margin: 40px auto;
-            padding: 20px;
-            background: #161b22;
-            border-radius: 12px;
-            width: fit-content;
-            border: 2px solid #30363d;
-        }
-
-        /* 各キーをエリアに割り当て */
-        .k-esc {
-            grid-area: esc;
-        }
-
-        .k-tab {
-            grid-area: tab;
-            width: 100px !important;
-        }
-
-        .k-bs {
-            grid-area: bs;
-            width: 100px !important;
-            justify-self: end;
-        }
-
-        .k-ent {
-            grid-area: ent;
-            width: 100px !important;
-            z-index: 2;
-            justify-self: end;
-        }
-
-        .k-shft {
-            grid-area: shft;
-            width: 120px !important;
-        }
-
-        .k-ctrl {
-            grid-area: ctrl;
-        }
-
-        .k-meta {
-            grid-area: meta;
-        }
-
-        .k-alt {
-            grid-area: alt;
-        }
-
-        .k-up {
-            grid-area: up;
-        }
-
-        .k-down {
-            grid-area: down;
-        }
-
-        .k-left {
-            grid-area: left;
-        }
-
-        .k-right {
-            grid-area: right;
-        }
-
-        /* 特殊キー共通：少し横長に */
-        .special-key {
-            width: 70px;
-            height: 55px;
-            font-size: 0.75rem;
-        }
-
-        .footer {
-            margin-top: 60px;
-            padding: 30px 20px;
-            border-top: 1px solid #1e293b;
-            background: rgba(15, 23, 42, 0.9);
-            color: #64748b;
-            font-size: 0.85rem;
-            text-align: center;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .footer a {
-            color: #38bdf8;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .footer a:hover {
-            color: #7dd3fc;
-            text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
-        }
-
-        .divider {
-            color: #334155;
-        }
-
-        /* モバイル表示への配慮 */
-        @media (max-width: 600px) {
-            .divider {
-                display: none;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                gap: 8px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="effects.css">
     <script src="effects.js"></script>
 </head>
@@ -236,10 +16,18 @@
     <h1>AsciiTracker</h1>
     <div class="stats" id="status-text">Detecting keystrokes...</div>
 
-    <div class="matrix-wrapper">
-        <div class="matrix" id="matrix"></div>
+    <div class="main-console">
+        <div id="group-left" class="side-panel mod-panel"></div>
 
-        <div class="keyboard-fragment" id="fragment-container"></div>
+        <div class="matrix-center">
+            <div class="matrix" id="matrix"></div>
+        </div>
+
+        <div id="group-right" class="side-panel right-panel">
+            <div id="group-act" class="act-group"></div>
+
+            <div id="group-arrow" class="arrow-group"></div>
+        </div>
     </div>
 
     <script>
@@ -289,27 +77,29 @@
 
         // 4. 特殊キーの定義（event.key の値と一致させる）
         const specials = [
-            { id: 'Escape', label: 'ESC', hex: '1B', cls: 'k-esc' },
-            { id: 'Backspace', label: 'BS', hex: '08', cls: 'k-bs' },
-            { id: 'Tab', label: 'TAB', hex: '09', cls: 'k-tab' },
-            { id: 'Enter', label: 'ENTER', hex: '0D', cls: 'k-ent' },
-            { id: 'Shift', label: 'SHIFT', hex: 'MOD', cls: 'k-shft' },
-            { id: 'Control', label: 'CTRL', hex: 'MOD', cls: 'k-ctrl' },
-            { id: 'Meta', label: 'META', hex: 'OS', cls: 'k-meta' },
-            { id: 'Alt', label: 'ALT', hex: 'MOD', cls: 'k-alt' },
-            { id: 'ArrowUp', label: '▲', hex: 'UP', cls: 'k-up' },
-            { id: 'ArrowDown', label: '▼', hex: 'DN', cls: 'k-down' },
-            { id: 'ArrowLeft', label: '◀', hex: 'LF', cls: 'k-left' },
-            { id: 'ArrowRight', label: '▶', hex: 'RT', cls: 'k-right' }
+            { id: 'Escape', label: 'ESC', hex: '1B', cls: 'k-esc', grp: 'left' },
+            { id: 'Backspace', label: 'BS', hex: '08', cls: 'k-bs', grp: 'act' },
+            { id: 'Tab', label: 'TAB', hex: '09', cls: 'k-tab', grp: 'left' },
+            { id: 'Enter', label: 'ENTER', hex: '0D', cls: 'k-ent', grp: 'act' },
+            { id: 'Shift', label: 'SHIFT', hex: 'MOD', cls: 'k-shft', grp: 'left' },
+            { id: 'Control', label: 'CTRL', hex: 'MOD', cls: 'k-ctrl', grp: 'left' },
+            { id: 'Alt', label: 'ALT', hex: 'MOD', cls: 'k-alt', grp: 'left' },
+            { id: 'Meta', label: 'META', hex: 'OS', cls: 'k-meta', grp: 'left' },
+            { id: 'ArrowUp', label: '▲', hex: 'UP', cls: 'k-up', grp: 'arrow' },
+            { id: 'ArrowDown', label: '▼', hex: 'DN', cls: 'k-down', grp: 'arrow' },
+            { id: 'ArrowLeft', label: '◀', hex: 'LF', cls: 'k-left', grp: 'arrow' },
+            { id: 'ArrowRight', label: '▶', hex: 'RT', cls: 'k-right', grp: 'arrow' }
         ];
 
-        const fragCon = document.getElementById('fragment-container');
         specials.forEach(s => {
             const div = document.createElement('div');
             div.className = `cell key-box special-key ${s.cls}`;
             div.id = `key-${s.id}`;
             div.innerHTML = `<span class="hex-id">${s.hex}</span><span class="char">${s.label}</span>`;
-            fragCon.appendChild(div);
+
+            const target = document.getElementById(`group-${s.grp}`);
+            if (target) target.appendChild(div);
+
             keyMap[s.id] = { count: 0, element: div };
         });
 
@@ -360,7 +150,7 @@
         });
     </script>
 
-    <aside style="text-align: right;">
+    <aside>
         表記外のキーイベントを見たい場合はコンソールログをご確認ください。
     </aside>
 
