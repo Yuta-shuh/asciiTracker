@@ -64,19 +64,26 @@
             matrix.appendChild(createLabel(row.toString(16).toUpperCase() + '_'));
             for (let col = 0; col < 16; col++) {
                 const code = (row << 4) | col;
-                if (code > 126) {
+                if (code > 127) {
                     const empty = document.createElement('div');
                     empty.className = 'cell';
                     matrix.appendChild(empty);
                     continue;
                 }
-                const char = code === 32 ? 'SP' : String.fromCharCode(code);
+
+                let char;
+                if (code === 32) char = 'SP';
+                else if (code === 127) char = 'Del'
+                else char = String.fromCharCode(code);
+
                 const div = document.createElement('div');
                 div.className = 'cell key-box';
                 div.id = `key-${code}`;
                 div.innerHTML = `<span class="hex-id">0x${code.toString(16).toUpperCase()}</span><span class="char">${char}</span>`;
                 matrix.appendChild(div);
+
                 keyMap[code] = { count: 0, element: div };
+                if (code === 127) keyMap['Delete'] = keyMap[code];
             }
         }
 
@@ -86,7 +93,6 @@
             { id: 'Tab',       label: 'TAB', hex: '0x09' },
             { id: 'Enter',     label: 'ENT', hex: '0x0D' },
             { id: 'Escape',    label: 'ESC', hex: '0x1B' },
-            { id: 'Delete',    label: 'DEL', hex: '0x7F' },
             { id: 'Shift',     label: 'SHIFT', hex: 'MOD' },
             { id: 'Control',   label: 'CTRL', hex: 'MOD' },
             { id: 'Alt',       label: 'ALT', hex: 'MOD' },
@@ -112,10 +118,11 @@
 
         window.addEventListener('keydown', (event) => {
             let targetKey = null;
+            console.log(event.key);
 
             // 特殊キーか、通常の1文字キーか判定
             if (keyMap[event.key]) {
-                targetKey = event.key; // Backspace, Enter, Delete
+                targetKey = event.key; // Backspace, Enter, Delete etc.
             } else if (event.key.length === 1) {
                 const code = event.key.charCodeAt(0);
                 if (keyMap[code]) targetKey = code;
@@ -137,8 +144,11 @@
                 // ステータス更新
                 document.getElementById('status-text').innerText = `TRACKED: ${totalPressed} / ${totalTargets} | LAST_KEY: ${event.key}`;
 
-                // Backspaceなどでページが戻るのを防ぐ
-                if (['Backspace', 'Delete'].includes(event.key)) event.preventDefault();
+                // ブラウザのショートカットや移動を防止
+                const preventKeys = ['Tab', 'Backspace', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Meta'];
+                if (preventKeys.includes(event.key)) {
+                    event.preventDefault();
+                }
             }
         });
     </script>
