@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>AsciiTrack</title>
+    <title>AsciiTracker</title>
     <style>
         body {
             font-family: 'Fira Code', 'Courier New', monospace;
@@ -179,12 +179,57 @@
             height: 55px;
             font-size: 0.75rem;
         }
+
+        .footer {
+            margin-top: 60px;
+            padding: 30px 20px;
+            border-top: 1px solid #1e293b;
+            background: rgba(15, 23, 42, 0.9);
+            color: #64748b;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .footer a {
+            color: #38bdf8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: #7dd3fc;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+        }
+
+        .divider {
+            color: #334155;
+        }
+
+        /* モバイル表示への配慮 */
+        @media (max-width: 600px) {
+            .divider {
+                display: none;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <h1>AsciiTrack</h1>
+    <h1>AsciiTracker</h1>
     <div class="stats" id="status-text">Detecting keystrokes...</div>
 
     <div class="matrix-wrapper">
@@ -304,6 +349,22 @@
             }
         });
     </script>
+
+    <aside style="text-align: right;">
+        表記外のキーイベントを見たい場合はコンソールログをご確認ください。
+    </aside>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <span>&copy; 2026 <strong>AsciiTracker</strong></span>
+            <span class="divider">|</span>
+            <span>Developed by <a href="https://github.com/Yuta-shuh" target="_blank">Yuta</a></span>
+            <span class="divider">|</span>
+            <a href="https://github.com/Yuta-shuh/asciiTracker" target="_blank" class="github-link">
+                GitHub Repository
+            </a>
+        </div>
+    </footer>
 </body>
 
 </html>
