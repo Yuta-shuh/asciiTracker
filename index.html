@@ -118,7 +118,7 @@
 
         window.addEventListener('keydown', (event) => {
             let targetKey = null;
-            console.log(event.key);
+            console.log("key: %s / code: %s", event.key, event.code, event);
 
             // 特殊キーか、通常の1文字キーか判定
             if (keyMap[event.key]) {
