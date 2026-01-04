@@ -10,7 +10,7 @@
 
 ## ✨ Features
 
-- **Hex Matrix Layout**: ASCIIコード（0x20 - 0x7E）を16×6の行列形式で表示。
+- **Hex Matrix Layout**: ASCIIコード（0x20 - 0x7F）を16×6の行列形式で表示。
 - **Progress Tracking**: 入力済みのキーは「薄く表示」され、未入力のキーが強調されます。
 - **Special Key Support**: `Enter`, `Backspace`, `Delete`, `Tab` などの制御キーや、`Meta (Win/Cmd)`、`Arrow Keys` も完全網羅。
 - **Zero Dependency**: 外部ライブラリ一切なし。HTML/CSS/JSのみの軽量設計（GitHub Pagesに最適）。
