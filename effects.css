@@ -1,0 +1,30 @@
+/* 達成時のグロー効果 */
+@keyframes complete-glow {
+    0% { box-shadow: 0 0 0px #38bdf8; filter: brightness(1); }
+    50% { box-shadow: 0 0 20px #38bdf8; filter: brightness(1.5); }
+    100% { box-shadow: 0 0 5px #38bdf8; filter: brightness(1.2); }
+}
+
+.all-cleared .key-box {
+    animation: complete-glow 1.5s ease-in-out infinite alternate;
+    border-color: #38bdf8 !important;
+    color: #38bdf8 !important;
+}
+
+/* スキャンライン */
+.scan-line {
+    position: fixed;
+    top: -100px;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    background: rgba(56, 189, 248, 0.5);
+    box-shadow: 0 0 20px #38bdf8;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+@keyframes scan-move {
+    0% { top: -100px; }
+    100% { top: 110%; }
+}

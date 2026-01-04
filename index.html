@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>AsciiTracker</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⌨️</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⌨️</text></svg>">
     <style>
         body {
             font-family: 'Fira Code', 'Courier New', monospace;
@@ -226,6 +227,8 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="effects.css">
+    <script src="effects.js"></script>
 </head>
 
 <body>
@@ -280,7 +283,7 @@
                 matrix.appendChild(div);
 
                 keyMap[code] = { count: 0, element: div };
-                if (code === 127) keyMap['Delete'] = keyMap[code];
+                //if (code === 127) keyMap['Delete'] = keyMap[code];
             }
         }
 
@@ -321,6 +324,8 @@
             // 特殊キーか、通常の1文字キーか判定
             if (keyMap[event.key]) {
                 targetKey = event.key; // Backspace, Enter, Delete etc.
+            } else if (event.key === 'Delete') {
+                targetKey = 127;
             } else if (event.key.length === 1) {
                 const code = event.key.charCodeAt(0);
                 if (keyMap[code]) targetKey = code;
@@ -346,6 +351,10 @@
                 const preventKeys = ['Tab', 'Backspace', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Meta'];
                 if (preventKeys.includes(event.key)) {
                     event.preventDefault();
+                }
+
+                if (totalPressed === totalTargets) {
+                    triggerCompleteEffect();
                 }
             }
         });
