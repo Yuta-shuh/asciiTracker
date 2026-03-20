@@ -106,10 +106,19 @@
         // 5. 入力イベント
         let totalPressed = 0;
         const totalTargets = Object.keys(keyMap).length;
+        let lastKeyTime = null;
 
         window.addEventListener('keydown', (event) => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            let secondsSinceLast = 0;
+            if (lastKeyTime) {
+                secondsSinceLast = (now.getTime() - lastKeyTime.getTime()) / 1000;
+            }
+            lastKeyTime = now;
+
             let targetKey = null;
-            console.log("key: %s / code: %s", event.key, event.code, event);
+            console.log("[%s] +%s sec | key: %s / code: %s", timeString, secondsSinceLast.toFixed(3), event.key, event.code, event);
 
             // 特殊キーか、通常の1文字キーか判定
             if (keyMap[event.key]) {
