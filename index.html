@@ -117,31 +117,42 @@
             }
             lastKeyTime = now;
 
-            let targetKey = null;
             console.log("[%s] +%s sec | key: %s / code: %s", timeString, secondsSinceLast.toFixed(3), event.key, event.code, event);
 
             // 特殊キーか、通常の1文字キーか判定
+            let targetKeys = [];
+
             if (keyMap[event.key]) {
-                targetKey = event.key; // Backspace, Enter, Delete etc.
+                targetKeys.push(event.key); // Backspace, Enter, Delete etc.
             } else if (event.key === 'Delete') {
-                targetKey = 127;
+                targetKeys.push(127);
             } else if (event.key.length === 1) {
                 const code = event.key.charCodeAt(0);
-                if (keyMap[code]) targetKey = code;
+                if (keyMap[code]) targetKeys.push(code);
+
+                // 小文字入力時に大文字も打たれたとみなすオプション
+                const autoUpper = document.getElementById('auto-upper-checkbox');
+                if (autoUpper && autoUpper.checked && (code >= 97 && code <= 122)) { // a-z
+                    const upperCode = code - 32; // A-Z
+                    if (keyMap[upperCode]) targetKeys.push(upperCode);
+                }
             }
 
-            if (targetKey !== null) {
-                const data = keyMap[targetKey];
+            if (targetKeys.length > 0) {
+                targetKeys.forEach(tKey => {
+                    const data = keyMap[tKey];
+                    if (!data) return;
 
-                if (data.count === 0) {
-                    totalPressed++;
-                    data.element.classList.add('pressed');
-                }
-                data.count++;
+                    if (data.count === 0) {
+                        totalPressed++;
+                        data.element.classList.add('pressed');
+                    }
+                    data.count++;
 
-                // アニメーション
-                data.element.classList.add('active');
-                setTimeout(() => data.element.classList.remove('active'), 100);
+                    // アニメーション
+                    data.element.classList.add('active');
+                    setTimeout(() => data.element.classList.remove('active'), 100);
+                });
 
                 // ステータス更新
                 document.getElementById('status-text').innerText = `TRACKED: ${totalPressed} / ${totalTargets} | LAST_KEY: ${event.key}`;
@@ -152,7 +163,7 @@
                     event.preventDefault();
                 }
 
-                if (totalPressed === totalTargets) {
+                if (totalPressed >= totalTargets) {
                     triggerCompleteEffect();
                 }
             }
@@ -160,7 +171,11 @@
     </script>
 
     <aside>
-        表記外のキーイベントを見たい場合はコンソールログをご確認ください。
+        <div style="margin-bottom: 8px;">表記外のキーイベントを見たい場合はコンソールログをご確認ください。</div>
+        <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+            <input type="checkbox" id="auto-upper-checkbox">
+            <span>入力時に大文字(A-Z)も打鍵済みとする</span>
+        </label>
     </aside>
 
     <footer class="footer">

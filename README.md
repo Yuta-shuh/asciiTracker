@@ -1,7 +1,7 @@
 # ⌨️ AsciiTrack
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/badge/Version-1.0.0-38bdf8.svg)]()
+[![Build Status](https://img.shields.io/badge/Version-1.1.0-38bdf8.svg)]()
 
 **AsciiTrack** は、エンジニアのための16進数マトリックス型キーボード・デバッガーです。
 単なる動作確認にとどまらず、ASCIIコードの構造を視覚化し、すべてのキー入力を「トラッキング」することを目的に設計されています。
